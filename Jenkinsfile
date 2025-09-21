@@ -5,7 +5,7 @@ pipeline {
     skipDefaultCheckout()
   }
   environment {
-    IMAGE_BASE = 'alikhancyber/microservices-backend'   // 👈 замени alikhan на твой DockerHub username
+    IMAGE_BASE = 'alikhancyber/microservices-backend'   
     IMAGE_TAG = "v$BUILD_NUMBER"
     IMAGE_NAME = "${env.IMAGE_BASE}:${env.IMAGE_TAG}"
     IMAGE_NAME_LATEST = "${env.IMAGE_BASE}:latest"
