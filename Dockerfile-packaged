@@ -1,0 +1,14 @@
+# Используем официальный образ OpenJDK 17 (поддерживает amd64 и arm64)
+FROM openjdk:17-jdk-slim
+
+# Директория внутри контейнера
+WORKDIR /app
+
+# Копируем собранный jar
+COPY target/backend-*.jar app.jar
+
+# Открываем порт 8080
+EXPOSE 8080
+
+# Точка входа
+ENTRYPOINT ["java","-jar","/app/app.jar"]
