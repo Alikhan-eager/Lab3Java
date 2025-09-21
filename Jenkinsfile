@@ -55,14 +55,27 @@ pipeline {
       }
     }
 
-    stage('Trigger kubernetes') {
-      agent any
-      when { branch 'master' }
-      steps {
-        withKubeConfig([credentialsId: 'kubernetes-creds', serverUrl: "${CLUSTER_URL}", namespace: "${CLUSTER_NAMESPACE}"]) {
-          sh "helm upgrade ${HELM_PROJECT} ${HELM_CHART} --reuse-values --set backend.image.tag=${env.IMAGE_TAG}"
-        }
-      }
+stage('Trigger kubernetes') {
+  agent any
+  when { branch 'master' }
+  steps {
+    withKubeConfig([credentialsId: 'kubernetes-creds', serverUrl: "${CLUSTER_URL}", namespace: "${CLUSTER_NAMESPACE}"]) {
+      sh """
+        helm repo add msvc-repo https://anshelen.github.io/microservices-deploy/ || true
+        helm repo update
+        helm upgrade --install ${HELM_PROJECT} ${HELM_CHART} \
+          --namespace ${CLUSTER_NAMESPACE} \
+          --create-namespace \
+          --reuse-values \
+          --set backend.image.tag=${env.IMAGE_TAG}
+      """
+    }
+  }
+}
+
+
+
+
     }
   }
 }
