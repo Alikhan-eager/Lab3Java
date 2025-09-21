@@ -5,7 +5,7 @@ pipeline {
     skipDefaultCheckout()
   }
   environment {
-    IMAGE_BASE = 'alikhancyber/microservices-backend'   
+    IMAGE_BASE = 'alikhancyber/microservices-backend'   // 👈 твой DockerHub namespace
     IMAGE_TAG = "v$BUILD_NUMBER"
     IMAGE_NAME = "${env.IMAGE_BASE}:${env.IMAGE_TAG}"
     IMAGE_NAME_LATEST = "${env.IMAGE_BASE}:latest"
@@ -55,27 +55,22 @@ pipeline {
       }
     }
 
-stage('Trigger kubernetes') {
-  agent any
-  when { branch 'master' }
-  steps {
-    withKubeConfig([credentialsId: 'kubernetes-creds', serverUrl: "${CLUSTER_URL}", namespace: "${CLUSTER_NAMESPACE}"]) {
-      sh """
-        helm repo add msvc-repo https://anshelen.github.io/microservices-deploy/ || true
-        helm repo update
-        helm upgrade --install ${HELM_PROJECT} ${HELM_CHART} \
-          --namespace ${CLUSTER_NAMESPACE} \
-          --create-namespace \
-          --reuse-values \
-          --set backend.image.tag=${env.IMAGE_TAG}
-      """
-    }
-  }
-}
-
-
-
-
+    stage('Trigger kubernetes') {
+      agent any
+      when { branch 'master' }
+      steps {
+        withKubeConfig([credentialsId: 'kubernetes-creds', serverUrl: "${CLUSTER_URL}", namespace: "${CLUSTER_NAMESPACE}"]) {
+          sh """
+            helm repo add msvc-repo https://anshelen.github.io/microservices-deploy/ || true
+            helm repo update
+            helm upgrade --install ${HELM_PROJECT} ${HELM_CHART} \
+              --namespace ${CLUSTER_NAMESPACE} \
+              --create-namespace \
+              --reuse-values \
+              --set backend.image.tag=${env.IMAGE_TAG}
+          """
+        }
+      }
     }
   }
 }
